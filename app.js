@@ -4,6 +4,7 @@ const cors = require('cors');
 const users = require('./routes/users');
 const todolist = require('./routes/todolist');
 const app = express();
+const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 app.use(bodyParser.text());
@@ -17,6 +18,6 @@ app.use(function (err, req, res, next) {
     res.send(err.message);
 });
 
-app.listen(3000, function () {
-    console.log('App listening on port 3000!');
+app.listen(PORT, function () {
+    console.log(`Server running on ${PORT}`);
 });

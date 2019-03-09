@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const fs = require('fs');
+const checkUserMid = require('./userMiddleware');
 const uuid = require('uuid/v4');
 
-router.get('/todolist', isLoggedMid, (req, res, next) => {
-    fs.readFile('data/todolist.json', 'utf8', (err, data) => {
+router.get('/todolist', checkUserMid, (req, res, next) => {
+    fs.readFile('./data/todolist.json', 'utf8', (err, data) => {
         if (err) {
             return next(err);
         } else {
@@ -18,8 +19,8 @@ router.get('/todolist', isLoggedMid, (req, res, next) => {
     });
 });
 
-router.post('/todolist', isLoggedMid, (req, res, next) => {
-    fs.readFile('data/todolist.json', 'utf8', (err, data) => {
+router.post('/todolist', checkUserMid, (req, res, next) => {
+    fs.readFile('./data/todolist.json', 'utf8', (err, data) => {
         if (err) {
             return next(err);
         } else {
@@ -27,19 +28,19 @@ router.post('/todolist', isLoggedMid, (req, res, next) => {
             req.body.userId = req.headers['x-apikey'];
             req.body._id = uuid();
             todolist.push(req.body);
-            fs.writeFile('data/todolist.json', JSON.stringify(todolist, null, 2), (err) => {
+            fs.writeFile('./data/todolist.json', JSON.stringify(todolist, null, 2), (err) => {
                 if (err) {
                     return next(err);
                 } else {
-                    res.status(200).send({});
+                    res.status(200).send(req.body);
                 }
             });
         }
     });
 });
 
-router.put('/todolist/:id', isLoggedMid, (req, res, next) => {
-    fs.readFile('data/todolist.json', 'utf8', (err, data) => {
+router.put('/todolist/:id', checkUserMid, (req, res, next) => {
+    fs.readFile('./data/todolist.json', 'utf8', (err, data) => {
         if (err) {
             return next(err);
         } else {
@@ -48,14 +49,13 @@ router.put('/todolist/:id', isLoggedMid, (req, res, next) => {
             let id = req.params.id;
             todolist.find(item => {
                 if (item._id === id && item.userId === userToken) {
-                    item.title = req.body.title || item.title;
-                    item.description = req.body.description || item.description;
-                    item.status = req.body.status || item.status;
-                    item.selected = req.body.selected || item.selected;
+                    for (let key in req.body) {
+                        item[key] = req.body[key];
+                    }
                     return true
                 }
             });
-            fs.writeFile('data/todolist.json', JSON.stringify(todolist, null, 2), (err) => {
+            fs.writeFile('./data/todolist.json', JSON.stringify(todolist, null, 2), (err) => {
                 if (err) {
                     return next(err);
                 } else {
@@ -66,8 +66,8 @@ router.put('/todolist/:id', isLoggedMid, (req, res, next) => {
     });
 });
 
-router.delete('/todolist/:id', isLoggedMid, (req, res, next) => {
-    fs.readFile('data/todolist.json', 'utf8', (err, data) => {
+router.delete('/todolist/:id', checkUserMid, (req, res, next) => {
+    fs.readFile('./data/todolist.json', 'utf8', (err, data) => {
         if (err) {
             return next(err);
         } else {
@@ -78,7 +78,7 @@ router.delete('/todolist/:id', isLoggedMid, (req, res, next) => {
                 return item._id === id && item.userId === userToken
             });
             todolist.splice(index, 1);
-            fs.writeFile('data/todolist.json', JSON.stringify(todolist, null, 2), (err) => {
+            fs.writeFile('./data/todolist.json', JSON.stringify(todolist, null, 2), (err) => {
                 if (err) {
                     return next(err);
                 } else {
@@ -88,25 +88,5 @@ router.delete('/todolist/:id', isLoggedMid, (req, res, next) => {
         }
     });
 });
-
-function isLoggedMid(req, res, next) {
-    let userToken = req.headers['x-apikey'];
-    if (userToken) {
-        fs.readFile('data/todolist.json', 'utf8', (err, data) => {
-            let todolist = JSON.parse(data);
-            let userFound = todolist.find( item => {
-                if (item.userId === userToken) {
-                    next();
-                    return true
-                }
-            });
-            if (userFound === undefined) {
-                res.status(401).send('unauthorized');
-            }
-        });
-    } else {
-        res.status(401).send('unauthorized');
-    }
-}
 
 module.exports = router;
