@@ -24,7 +24,6 @@ router.post('/todolist', isLoggedMid, (req, res, next) => {
             return next(err);
         } else {
             let todolist = JSON.parse(data);
-            console.log(todolist);
             req.body.userId = req.headers['x-apikey'];
             req.body._id = uuid();
             todolist.push(req.body);
