@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const fs = require('fs');
-const randtoken = require('rand-token');
+const uuid = require('uuid/v4');
 
 router.post('/registration', (req, res, next) => {
     fs.readFile('data/users.json', 'utf8', (err, data) => {
@@ -18,7 +18,7 @@ router.post('/registration', (req, res, next) => {
                 }
             });
             if (userFound === undefined) {
-                let token = randtoken.generate(16);
+                let token = uuid();
                 req.body.userId = token;
                 usersList.push(req.body);
                 fs.writeFile('data/users.json', JSON.stringify(usersList, null, 2), (err) => {
