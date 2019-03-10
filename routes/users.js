@@ -11,8 +11,8 @@ router.post('/registration', (req, res, next) => {
         } else {
             let usersList = JSON.parse(data);
             let userFound = usersList.find(user => {
-                if (user.name === req.body.name) {
-                    let err = new Error('Choose another username');
+                if (user.email === req.body.email) {
+                    let err = new Error('Choose another email');
                     err.status = 401;
                     next(err);
                     return true
