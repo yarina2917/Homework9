@@ -14,6 +14,7 @@ app.use('/api/', users);
 app.use('/api/', todolist);
 
 app.use(function (err, req, res, next) {
+    console.log('errrrrr');
     res.status(err.status || 500);
     res.send(err.message);
 });

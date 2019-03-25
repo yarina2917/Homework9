@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const checkUserMid = require('./userMiddleware');
+const todoValidator = require('../validator/todolist');
 const uuid = require('uuid/v4');
 
 router.get('/todolist', checkUserMid, (req, res, next) => {
@@ -19,7 +20,7 @@ router.get('/todolist', checkUserMid, (req, res, next) => {
     });
 });
 
-router.post('/todolist', checkUserMid, (req, res, next) => {
+router.post('/todolist', todoValidator, checkUserMid, (req, res, next) => {
     fs.readFile('./data/todolist.json', 'utf8', (err, data) => {
         if (err) {
             return next(err);
@@ -39,7 +40,7 @@ router.post('/todolist', checkUserMid, (req, res, next) => {
     });
 });
 
-router.put('/todolist/:id', checkUserMid, (req, res, next) => {
+router.put('/todolist/:id', todoValidator, checkUserMid, (req, res, next) => {
     fs.readFile('./data/todolist.json', 'utf8', (err, data) => {
         if (err) {
             return next(err);
